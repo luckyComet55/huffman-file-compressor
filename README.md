@@ -1,1 +1,1 @@
-# hoffman-file-complressor
+# huffman-file-compressor
