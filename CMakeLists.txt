@@ -3,4 +3,4 @@ project(huffman-file-compressor)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(huffman-file-compressor main.c)
+add_executable(huffman-file-compressor main.c btree.c btree.h) #bits.c bits.h)
