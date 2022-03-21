@@ -8,7 +8,7 @@ typedef struct node {
     struct node * left, * right;
 } NODE;
 
-NODE * add_elem(NODE * root, int value);
+NODE * add_elem(NODE * root, int value, char asci);
 void print_tree(NODE * root);
 void delete_tree(NODE * root);
 
