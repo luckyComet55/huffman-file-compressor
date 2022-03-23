@@ -27,11 +27,11 @@ void print_tree(NODE * root) {
     print_tree(root->right);
 }
 
-void delete_tree(NODE * root) {
-    if(root == NULL) {
-        return;
+NODE * delete_tree(NODE * root) {
+    if(root) {
+        delete_tree(root->left);
+        delete_tree(root->right);
+        free(root);
     }
-    delete_tree(root->left);
-    delete_tree(root->right);
-    free(root);
+    return NULL;
 }
