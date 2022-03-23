@@ -1,29 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "btree.h"
-void Add2List(NODE** pphead, int value, char ascii)
-{
-    while (*pphead)
-    {
-        if ((*pphead)->val > value)
-            break;
-        pphead = &((*pphead)->next);
-    }
-    NODE* pnew = (NODE*)malloc(sizeof(NODE));
-    pnew->val = value;
-    pnew->next = *pphead;
-    pnew->symb = ascii;
-    *pphead = pnew;
-}
-void PrintList(const NODE* phead)
-{
-    while (phead)
-    {
-        printf("%5c", phead->symb);
-        phead = phead->next;
-    }
-    printf("\n");
-}
 
 NODE * add_elem(NODE * root, int value) {
     if(root != NULL) {
