@@ -2,17 +2,18 @@
 #define BTREE_H
 
 typedef struct node {
-    int val;
+    unsigned val;
     char symb;
     char isSymb;
     struct node * left, * right;
-    struct Node* next;
+    struct node* next;
 } NODE;
 
-void Add2List(NODE** pphead, int value, char ascii);
-NODE * add_elem(NODE * root, int value);
+void add2list(NODE ** head, unsigned value, char ascii);
+NODE * add2tree(NODE * root, unsigned value);
 void print_tree(NODE * root);
 void delete_tree(NODE * root);
-void PrintList(const NODE* phead);
+void print_list(const NODE * head);
+NODE * delete_list(NODE * head);
 
 #endif //BTREE_H

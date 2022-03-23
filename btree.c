@@ -1,36 +1,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "btree.h"
-void Add2List(NODE** pphead, int value, char ascii)
-{
-    while (*pphead)
+
+void add2list(NODE** head, unsigned value, char ascii) {
+    while (*head)
     {
-        if ((*pphead)->val > value)
+        if ((*head)->val > value)
             break;
-        pphead = &((*pphead)->next);
+        head = &((*head)->next);
     }
-    NODE* pnew = (NODE*)malloc(sizeof(NODE));
-    pnew->val = value;
-    pnew->next = *pphead;
-    pnew->symb = ascii;
-    *pphead = pnew;
+    NODE* newEl = (NODE*)malloc(sizeof(NODE));
+    newEl->val = value;
+    newEl->next = *head;
+    newEl->symb = ascii;
+    *head = newEl;
 }
-void PrintList(const NODE* phead)
-{
-    while (phead)
+
+void print_list(const NODE* head) {
+    while (head)
     {
-        printf("%5c", phead->symb);
-        phead = phead->next;
+        printf("%5c", head->symb);
+        head = head->next;
     }
     printf("\n");
 }
 
-NODE * add_elem(NODE * root, int value) {
+NODE * add2tree(NODE * root, unsigned value) {
     if(root != NULL) {
         if(value < root->val) {
-            root->left = add_elem(root->left, value);
+            root->left = add2tree(root->left, value);
         } else {
-            root->right = add_elem(root->right, value);
+            root->right = add2tree(root->right, value);
         }
     } else {
         root = (NODE *) malloc(sizeof(NODE));
@@ -57,4 +57,12 @@ void delete_tree(NODE * root) {
     delete_tree(root->left);
     delete_tree(root->right);
     free(root);
+}
+
+NODE * delete_list(NODE * head) {
+    if(head) {
+        head->next = delete_list(head->next);
+        free(head);
+    }
+    return NULL;
 }
