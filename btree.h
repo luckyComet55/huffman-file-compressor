@@ -1,10 +1,12 @@
 #ifndef BTREE_H
 #define BTREE_H
+#define MAX_CODE_LEN 128
 
 typedef struct node {
     unsigned val;
     char symb;
     char isSymb;
+    char code[MAX_CODE_LEN];
     struct node * left, * right;
     struct node * next;
 } NODE;

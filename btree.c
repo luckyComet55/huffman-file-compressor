@@ -81,7 +81,7 @@ void print_tree(NODE * root) {
     }
     print_tree(root->left);
     if(root->isSymb) {
-        printf("%5d", root->val);
+        printf("Symbol %c, %d times\n", root->symb, root->val);
     }
     print_tree(root->right);
 }
