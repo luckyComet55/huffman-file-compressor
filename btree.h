@@ -10,6 +10,8 @@ typedef struct node {
 } NODE;
 
 void add2list(NODE ** head, unsigned value, char ascii);
+void combine_lists(NODE ** head1, NODE ** head2);
+void list2tree(NODE ** head);
 NODE * add2tree(NODE * root, unsigned value);
 void print_tree(NODE * root);
 NODE * delete_tree(NODE * root);

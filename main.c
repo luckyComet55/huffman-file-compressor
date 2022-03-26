@@ -1,40 +1,30 @@
 #include "btree.h"
 #include <stdio.h>
-//#include <time.h>
-//#include <stdlib.h>
+#include <time.h>
+#include <stdlib.h>
+#define ALPH_SIZE 256
 
 int main() {
-    unsigned freq[256] = { 0 };
-
-    FILE* fr = fopen("input", "rb");
-    if (!fr) {
-        return -1;
-    }
+    NODE * head1 = NULL;
+    int freq[ALPH_SIZE] = { 0 };
+    FILE * fr = fopen("input", "rb");
     fseek(fr, 0L, SEEK_END);
     long length = ftell(fr);
-    printf("File length is %ld symbols\n",length);
     fseek(fr, 0, SEEK_SET);
     for (int i = 0; i < length; ++i) {
-        freq[(unsigned char)fgetc(fr)]++;
+        freq[(unsigned char) fgetc(fr)]++;
     }
-
-    for (int j=0; j<256;++j) {
-        if (freq[j]!=0) {
-            printf("%u,%c\n", freq[j], j);
+    for (int i = 0; i < ALPH_SIZE; ++i) {
+        if(freq[i] != 0) {
+            add2list(&head1, freq[i], i);
         }
     }
-
-    NODE * head = NULL;
-
-    for (int i = 0; i < 256; ++i) {
-        if (freq[i]!=0) {
-            add2list(&head, freq[i], (char) i);
-        }
-    }
-
-    print_list(head);
-    head = delete_list(head);
-
+    printf("Current list of symbols:\n");
+    print_list(head1);
+    list2tree(&head1);
+    printf("Made into tree:\n");
+    print_tree(head1);
+    head1 = delete_tree(head1);
     fclose(fr);
     return 0;
 }
