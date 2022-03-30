@@ -5,16 +5,11 @@
 #include <time.h>
 #include <stdlib.h>
 
-unsigned freq[256];
-#define ALPH_SIZE
-//=======
 #define ALPH_SIZE 256
-//>>>>>>> encoder
+unsigned freq[ALPH_SIZE];
 
 int main() {
     NODE * head1 = NULL;
-    int freq[ALPH_SIZE] = { 0 };
-//<<<<<<< HEAD
     FILE * fr = fopen("input.txt", "rb");
     if(!fr) {
         return -5;
@@ -23,12 +18,7 @@ int main() {
     if(!fw) {
         return -6;
     }
-//=======
-    FILE * fr = fopen("input", "rb");
-    if(!fr) {
-        return -5;
-    }
-//>>>>>>> encoder
+
     fseek(fr, 0L, SEEK_END);
     long length = ftell(fr);
     fseek(fr, 0, SEEK_SET);
@@ -40,18 +30,21 @@ int main() {
             add2list(&head1, freq[i], i);
         }
     }
-    printf("Current list of symbols:\n");
-    print_list(head1);
+    //printf("Current list of symbols:\n");
+    //print_list(head1);
     list2tree(&head1);
-    printf("Made into tree:\n");
-    print_tree(head1);
-    printf("\nEncoded symbols:\n");
+    //printf("Made into tree:\n");
+    //print_tree(head1);
+    //printf("\nEncoded symbols:\n");
     NODE * list_enc = NULL;
     char code[MAX_CODE_LEN] = { 0 };
     _encode_(head1, &list_enc, code);
-    print_encoded(list_enc);
+    char * buf = (char*)malloc((length) * sizeof(char) * MAX_CODE_LEN);
+    compress_file(buf, list_enc, fr, fw);
     head1 = delete_tree(head1);
     list_enc = delete_list(list_enc);
+    free(buf);
     fclose(fr);
+    fclose(fw);
     return 0;
 }

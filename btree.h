@@ -19,5 +19,6 @@ void print_tree(NODE * root);
 NODE * delete_tree(NODE * root);
 void print_list(const NODE * head);
 NODE * delete_list(NODE * head);
+NODE * find_node(NODE * head, char symbol);
 
 #endif //BTREE_H

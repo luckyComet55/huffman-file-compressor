@@ -102,3 +102,12 @@ NODE * delete_list(NODE * head) {
     }
     return NULL;
 }
+
+NODE *find_node(NODE *head, char symbol) {
+    while (head) {
+        if (head->symb == symbol)
+            return head;
+        head = head->next;
+    }
+    return NULL;
+}
