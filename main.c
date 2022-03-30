@@ -4,12 +4,19 @@
 #include <stdlib.h>
 
 unsigned freq[256];
+#define ALPH_SIZE
 
 int main() {
-
-    FILE* fr = fopen("input.txt", "rb");
-    if (!fr)
-        return -1;
+    NODE * head1 = NULL;
+    int freq[ALPH_SIZE] = { 0 };
+    FILE * fr = fopen("input.txt", "rb");
+    if(!fr) {
+        return -5;
+    }
+    FILE * fw = fopen("output.txt", "wb");
+    if(!fw) {
+        return -6;
+    }
     fseek(fr, 0L, SEEK_END);
     long length = ftell(fr);
     printf("%ld\n",length);
