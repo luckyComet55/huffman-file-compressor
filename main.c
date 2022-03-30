@@ -1,14 +1,20 @@
+#include "encoder.h"
 #include "btree.h"
 #include <stdio.h>
+//<<<<<<< HEAD
 #include <time.h>
 #include <stdlib.h>
 
 unsigned freq[256];
 #define ALPH_SIZE
+//=======
+#define ALPH_SIZE 256
+//>>>>>>> encoder
 
 int main() {
     NODE * head1 = NULL;
     int freq[ALPH_SIZE] = { 0 };
+//<<<<<<< HEAD
     FILE * fr = fopen("input.txt", "rb");
     if(!fr) {
         return -5;
@@ -17,38 +23,35 @@ int main() {
     if(!fw) {
         return -6;
     }
+//=======
+    FILE * fr = fopen("input", "rb");
+    if(!fr) {
+        return -5;
+    }
+//>>>>>>> encoder
     fseek(fr, 0L, SEEK_END);
     long length = ftell(fr);
-    printf("%ld\n",length);
     fseek(fr, 0, SEEK_SET);
-    for (int i = 0; i < length; ++i)
-    {
-        freq[(unsigned char)fgetc(fr)] ++;
+    for (int i = 0; i < length; ++i) {
+        freq[(unsigned char) fgetc(fr)]++;
     }
-
-    for (int j=0; j<256;++j){
-        if (freq[j]!=0)
-            printf("%u,%c\n",freq[j],j);
+    for (int i = 0; i < ALPH_SIZE; ++i) {
+        if(freq[i] != 0) {
+            add2list(&head1, freq[i], i);
+        }
     }
-
-    NODE* phead = NULL;
-
-    for (int i = 0; i < 256; ++i)
-    {
-        if (freq[i]!=0)
-            Add2List(&phead, freq[i],i);
-    }
-
-    NODE * tree = NULL;
-
-    for (int i = 0; i < 256; ++i) {
-        if (freq[i]!=0)
-            tree = add_elem(tree, freq[i]);
-    }
-    print_tree(tree);
-    PrintList(phead);
-    delete_tree(tree);
-
+    printf("Current list of symbols:\n");
+    print_list(head1);
+    list2tree(&head1);
+    printf("Made into tree:\n");
+    print_tree(head1);
+    printf("\nEncoded symbols:\n");
+    NODE * list_enc = NULL;
+    char code[MAX_CODE_LEN] = { 0 };
+    _encode_(head1, &list_enc, code);
+    print_encoded(list_enc);
+    head1 = delete_tree(head1);
+    list_enc = delete_list(list_enc);
     fclose(fr);
     return 0;
 }

@@ -1,18 +1,23 @@
 #ifndef BTREE_H
 #define BTREE_H
+#define MAX_CODE_LEN 128
 
 typedef struct node {
-    int val;
+    unsigned val;
     char symb;
     char isSymb;
+    char code[MAX_CODE_LEN];
     struct node * left, * right;
-    struct Node* next;
+    struct node * next;
 } NODE;
 
-void Add2List(NODE** pphead, int value, char ascii);
-NODE * add_elem(NODE * root, int value);
+void add2list(NODE ** head, unsigned value, char ascii);
+void combine_lists(NODE ** head1, NODE ** head2);
+void list2tree(NODE ** head);
+NODE * add2tree(NODE * root, unsigned value);
 void print_tree(NODE * root);
-void delete_tree(NODE * root);
-void PrintList(const NODE* phead);
+NODE * delete_tree(NODE * root);
+void print_list(const NODE * head);
+NODE * delete_list(NODE * head);
 
 #endif //BTREE_H
