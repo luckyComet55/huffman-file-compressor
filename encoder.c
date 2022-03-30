@@ -4,7 +4,7 @@
 #include "btree.h"
 #include "encoder.h"
 
-#define BIT8 8
+
 
 void _add_encoded_(NODE ** head, char symb, char code[MAX_CODE_LEN]) {
     NODE * new_node = (NODE*) malloc(sizeof (NODE));

@@ -1,5 +1,6 @@
 #include "encoder.h"
 #include "btree.h"
+#include "decoder.h"
 #include <stdio.h>
 //<<<<<<< HEAD
 #include <time.h>
@@ -46,5 +47,25 @@ int main() {
     free(buf);
     fclose(fr);
     fclose(fw);
+//========================================================
+    FILE * fr1 = fopen("output.txt", "rb");
+    if(!fr1) {
+        return -5;
+    }
+    FILE * fw1 = fopen("output2.txt", "wb");
+    if(!fw1) {
+        return -6;
+    }
+    fseek(fr1, 0L, SEEK_END);
+    long length1 = ftell(fr);
+    fseek(fr1, 0, SEEK_SET);
+    NODE * list_dec = NULL;
+    read_table(&list_dec, fr1);
+    //print_dec_list(list_dec);
+    char * buf1 = (char*)malloc((length1) * sizeof(char) * BIT8);
+    decrypt_file(list_dec, buf1, fr1, fw1);
+    free(buf1);
+    fclose(fr1);
+    fclose(fw1);
     return 0;
 }

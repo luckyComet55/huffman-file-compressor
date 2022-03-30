@@ -3,6 +3,8 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
+#define BIT8 8
+
 typedef union bit2char {
     char symb;
     struct bit {
