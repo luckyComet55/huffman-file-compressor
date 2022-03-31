@@ -65,6 +65,7 @@ void compress_file(char *buf, const NODE *head, FILE *fr, FILE *fw) {
     int count = strlen(buf) / BIT8;
     int tail = strlen(buf) % BIT8; //остаток из нулей
     int len = count + 1;           //длина результирующей строки
+    if (tail == 0) len--;
     BIT2CHAR symb;
     print_encode_table(head, fw, tail);
     unsigned char * res = (char*)malloc((len) * sizeof(char));
