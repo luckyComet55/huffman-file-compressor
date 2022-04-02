@@ -6,7 +6,7 @@
 
 
 
-void _add_encoded_(NODE ** head, char symb, char code[MAX_CODE_LEN]) {
+void _add_encoded_(NODE ** head, char symb, unsigned char code[MAX_CODE_LEN]) {
     NODE * new_node = (NODE*) malloc(sizeof (NODE));
     new_node->symb = symb;
     strcpy(new_node->code, code);
@@ -17,12 +17,12 @@ void _add_encoded_(NODE ** head, char symb, char code[MAX_CODE_LEN]) {
     *head = new_node;
 }
 
-void _encode_(NODE * root, NODE ** encoded_, char code[MAX_CODE_LEN]) {
+void _encode_(NODE * root, NODE ** encoded_, unsigned char code[MAX_CODE_LEN]) {
     if(!(root->left)) {
         _add_encoded_(encoded_, root->symb, code);
         return;
     }
-    char temp[MAX_CODE_LEN] = { 0 };
+    unsigned char temp[MAX_CODE_LEN] = { 0 };
     strcpy(temp, code);
     strcat(temp, "0");
     _encode_(root->left, encoded_, temp);
@@ -42,7 +42,7 @@ void print_encode_table(const NODE * head, FILE * fw, const int tail) {
 }
 
 
-void encode_text(NODE *head, FILE *fr, char * buf) {
+void encode_text(NODE *head, FILE *fr, unsigned char * buf) {
     fseek(fr, 0L, SEEK_SET);
     char symbol = fgetc(fr);
     NODE * node;
@@ -58,17 +58,15 @@ void encode_text(NODE *head, FILE *fr, char * buf) {
     }
 }
 
-void compress_file(char *buf, const NODE *head, FILE *fr, FILE *fw) {
+void compress_file(unsigned char *buf, const NODE *head, FILE *fr, FILE *fw) {
     fseek(fr, 0L, SEEK_SET);
     fseek(fw, 0L, SEEK_SET);
     encode_text(head, fr, buf);
-    int count = strlen(buf) / BIT8;
-    int tail = strlen(buf) % BIT8; //остаток из нулей
-    int len = count + 1;           //длина результирующей строки
-    if (tail == 0) len--;
+    int tail = strlen(buf) % BIT8;                          //остаток из нулей
+    int len = strlen(buf) / BIT8 + (tail != 0);             //длина результирующей строки
     BIT2CHAR symb;
     print_encode_table(head, fw, tail);
-    unsigned char * res = (char*)malloc((len) * sizeof(char));
+    unsigned char * res = (unsigned char*)malloc((len) * sizeof(unsigned char));
     for (int i = 0; i < len; ++i)
     {
         symb.mbit.b1 = buf[i*BIT8 + 0];
@@ -82,4 +80,5 @@ void compress_file(char *buf, const NODE *head, FILE *fr, FILE *fw) {
         res[i] = symb.symb;
         fputc(res[i], fw);
     }
+    free(res);
 }
