@@ -85,10 +85,14 @@ int main() {
             free(buf1);
             fclose(fr1);
             fclose(fw1);
-        } else {
+        }
+        else if(commCode==3){
+            return 0;
+        }
+        else  {
             printf("Wrong code format.");
 
         }
     }
-    return 0;
+
 }

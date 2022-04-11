@@ -57,7 +57,7 @@ NODE *read_table(NODE ** head, FILE *fr) {
 
 void print_dec_list(const NODE *head) {
     while(head) {
-        printf("Char %d encoded as %s\n", head->symb, head->code);
+        //printf("Char %d encoded as %s\n", head->symb, head->code);
         head = head->next;
     }
 }
