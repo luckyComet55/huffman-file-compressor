@@ -148,10 +148,15 @@ NODE * freq_tree_assembly_(FILE * fr) {
     unsigned long long * FREQUENCY = (unsigned long long*) calloc(ALPHABET_CAP, sizeof (unsigned long long));
     get_frequency_(&FREQUENCY, fr);
     NODE * freq_tree = NULL;
+    int catch_err = 0;
     for (int i = 0; i < ALPHABET_CAP; ++i) {
         if(FREQUENCY[i] != 0) {
+            catch_err++;
             add2list(&freq_tree, FREQUENCY[i], (unsigned char)i);
         }
+    }
+    if(catch_err == 1) {
+        strcpy(freq_tree->code, "0");
     }
     list2tree(&freq_tree);
     free(FREQUENCY);
@@ -163,6 +168,9 @@ NODE * gc_seq(FILE * fr) {
     NODE * code_list = NULL;
     unsigned char code[MAX_CODE_LEN] = { 0 };
     _encode_(code_tree, &code_list, code);
+    if(code_list->next == NULL) {
+        strcpy(code_list->code, "0");
+    }
     code_tree = delete_tree(code_tree);
     //print_list(code_list);
     return code_list;
