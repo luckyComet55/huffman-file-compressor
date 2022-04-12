@@ -12,3 +12,8 @@ _deps
 .idea
 cmake-build-debug
 input
+input1
+input3
+input4
+output
+output2

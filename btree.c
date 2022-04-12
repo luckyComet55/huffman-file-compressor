@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "btree.h"
 
-void add2list(NODE ** head, unsigned value, char ascii) {
+void add2list(NODE ** head, unsigned long long value, unsigned char ascii) {
     while (*head) {
         if ((*head)->val > value) {
             break;
@@ -54,12 +54,12 @@ void list2tree(NODE ** head) {
 void print_list(const NODE * head) {
     while (head)
     {
-        printf("Symbol %d on ASCII %d times in text\n", head->symb, head->val);
+        printf("Symbol %d on ASCII %llu times in text\n", head->symb, head->val);
         head = head->next;
     }
 }
 
-NODE * add2tree(NODE * root, unsigned value) {
+NODE * add2tree(NODE * root, unsigned long long value) {
     if(root != NULL) {
         if(value < root->val) {
             root->left = add2tree(root->left, value);
@@ -81,7 +81,7 @@ void print_tree(NODE * root) {
     }
     print_tree(root->left);
     if(root->isSymb) {
-        printf("Symbol %c, %d times\n", root->symb, root->val);
+        printf("Symbol %c, %llu times\n", root->symb, root->val);
     }
     print_tree(root->right);
 }
@@ -103,7 +103,7 @@ NODE * delete_list(NODE * head) {
     return NULL;
 }
 
-NODE *find_node(NODE *head, char symbol) {
+NODE *find_node(NODE *head, unsigned char symbol) {
     while (head) {
         if (head->symb == symbol)
             return head;

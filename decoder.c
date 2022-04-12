@@ -64,8 +64,9 @@ void print_dec_list(const NODE *head) {
 
 void decode_text(FILE *fr, char * buf) {
     char temp = fgetc(fr);
+    printf("%d\n", temp);
     BIT2CHAR symb;
-    char byte[BIT8] = { 0 };
+    char byte[BIT8 + 1] = { 0 };
     int count = 0;
     while (!feof(fr)) {
         symb.symb = temp;
@@ -77,6 +78,7 @@ void decode_text(FILE *fr, char * buf) {
         byte[5] = symb.mbit.b6 + '0';
         byte[6] = symb.mbit.b7 + '0';
         byte[7] = symb.mbit.b8 + '0';
+        printf("LOL: %s\n", byte);
         strcpy(buf + count, byte);
         count += BIT8;
         temp = fgetc(fr);
@@ -88,9 +90,10 @@ void decrypt_file(NODE *head, char * buf, FILE *fr, FILE *fw) {
     fgets(buf, 10, fr);
     int tail = (int)buf[5] - '0';
     decode_text(fr, buf);
-    int buflen = strlen(buf) - 8 + tail;
-    buf[buflen] = '\0';
-    //printf("Encoded text:\n%s\n", buf);
+    int buflen = strlen(buf) - tail;
+    printf("Len: %d\n", (int)strlen(buf));
+    printf("Encoded text:\n%s\n", buf);
+    buf[buflen] = 0;
     char code_[MAX_CODE_LEN] = { 0 };
     int symb_wr;
     int code_index = 0;
