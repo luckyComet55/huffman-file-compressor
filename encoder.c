@@ -5,7 +5,14 @@
 #include "encoder.h"
 #define ALPHABET_CAP 256
 #define SINGLE_MEM_USAGE 65536
+#define MAX_EXT_LEN 8
 
+void print_meta(FILE * fw, char * ext_, int tail, unsigned long long * freq) {
+    fprintf(fw, "%s %d ", ext_, tail);
+    for (int i = 0; i < ALPHABET_CAP; ++i) {
+        fprintf(fw, "%llu ", freq[i]);
+    }
+}
 
 void _add_encoded_(NODE ** head, char symb, unsigned char code[MAX_CODE_LEN]) {
     NODE * new_node = (NODE*) malloc(sizeof (NODE));
@@ -42,7 +49,7 @@ void print_encode_table(const NODE * head, FILE * fw, const int tail) {
 }
 
 
-void encode_text(NODE *head, FILE *fr, FILE * fw) {
+void encode_text(NODE *head, FILE *fr, FILE * fw, unsigned long long * freq, char * ext) {
     fseek(fr, 0L, SEEK_END);
     unsigned long long un_com_file_len_ = ftell(fr);
     fseek(fr, 0L, SEEK_SET);
@@ -51,7 +58,7 @@ void encode_text(NODE *head, FILE *fr, FILE * fw) {
     unsigned char * buf = (unsigned char*) calloc(SINGLE_MEM_USAGE * MAX_CODE_LEN, sizeof (unsigned char));
     unsigned char * res = (unsigned char*) calloc(SINGLE_MEM_USAGE * MAX_CODE_LEN / BIT8, sizeof (unsigned char));
     unsigned char * buf_temp = buf;
-    print_encode_table(head, fw, 0);
+    print_meta(fw, ext, 0, freq);
     printf("Series: %llu\n", main_com_ser);
     int loc_tail = 0;
     for (unsigned long long i = 0; i < main_com_ser; ++i) {
@@ -108,10 +115,9 @@ void encode_text(NODE *head, FILE *fr, FILE * fw) {
         strcpy(buf_temp, node->code);
         buf_temp += strlen(node->code);
     }
-    printf("Size of this buffer: %d\n", (int)strlen(buf));
     loc_tail = strlen(buf) % BIT8;
     int len = strlen(buf) / BIT8 + (loc_tail != 0);
-    printf("Final tail length: %d\nLast sequence: %s\n", loc_tail, buf);
+    printf("Final tail length: %d\n", loc_tail);
     BIT2CHAR symb_bit;
     for (int i = 0; i < len; ++i) {
         symb_bit.mbit.b1 = buf[i*BIT8 + 0];
@@ -123,30 +129,29 @@ void encode_text(NODE *head, FILE *fr, FILE * fw) {
         symb_bit.mbit.b7 = buf[i*BIT8 + 6];
         symb_bit.mbit.b8 = buf[i*BIT8 + 7];
         res[i] = symb_bit.symb;
-        printf("Result on %d iteration: %d\n", i, res[i]);
     }
     for (int i = 0; i < len; ++i) {
         fputc(res[i], fw);
     }
     fseek(fw, 0L, SEEK_SET);
-    print_encode_table(head, fw, (8 - loc_tail) % BIT8);
+    print_meta(fw, ext, (8 - loc_tail) % BIT8, freq);
     free(res);
     free(buf);
 }
 
-void get_frequency_(unsigned long long ** freq, FILE * fr) {
+void get_frequency_(unsigned long long * freq, FILE * fr) {
     fseek(fr, 0L, SEEK_END);
     unsigned long long length = ftell(fr);
     fseek(fr, 0L, SEEK_SET);
     for (unsigned long long i = 0; i < length; ++i) {
-        (*freq)[(unsigned char)fgetc(fr)]++;
+        (freq)[(unsigned char)fgetc(fr)]++;
     }
     fseek(fr, 0L, SEEK_SET);
 }
 
 NODE * freq_tree_assembly_(FILE * fr) {
     unsigned long long * FREQUENCY = (unsigned long long*) calloc(ALPHABET_CAP, sizeof (unsigned long long));
-    get_frequency_(&FREQUENCY, fr);
+    get_frequency_(FREQUENCY, fr);
     NODE * freq_tree = NULL;
     int catch_err = 0;
     for (int i = 0; i < ALPHABET_CAP; ++i) {
@@ -176,8 +181,52 @@ NODE * gc_seq(FILE * fr) {
     return code_list;
 }
 
-void compress_file(FILE *fr, FILE *fw) {
+void get_suffix(char * filename, char * suf_buf) {
+    int len = strlen(filename);
+    for (int i = len - 1; i >= 0; --i) {
+        if(filename[i] == '.') {
+            strcpy(suf_buf, filename + i + 1);
+            strcpy(filename + i + 1, "holk");
+            for (int j = i + 5; j < len; ++j) {
+                filename[j] = 0;
+            }
+            break;
+        }
+        if(filename[i] == '\\') {
+            strcpy(suf_buf, "txt");
+            strcpy(filename + len, ".holk");
+            for (int j = filename + len + 5; j < len; ++j) {
+                filename[j] = 0;
+            }
+            break;
+        }
+    }
+}
+
+void compress_file(char * filename) {
+    char ext_[MAX_EXT_LEN] = { 0 };
+    printf("%s\n", filename);
+    FILE * fr = fopen(filename, "rb");
+    if(fr) {
+        printf("YES\n");
+    } else {
+        printf("AT");
+        exit(-1);
+    }
+    get_suffix(filename, ext_);
+    unsigned long long * FREQUENCY = (unsigned long long*) calloc(ALPHABET_CAP, sizeof (unsigned long long));
+    get_frequency_(FREQUENCY, fr);
+    FILE * fw = fopen(filename, "wb");
+    if(fw) {
+        printf("YYYES\n");
+    }
+    print_meta(fw, ext_, 0, FREQUENCY);
+    printf("%s\n", ext_);
+    printf("%s\n", filename);
     NODE * seq_list = gc_seq(fr);
-    encode_text(seq_list, fr, fw);
+    encode_text(seq_list, fr, fw, FREQUENCY, ext_);
     seq_list = delete_list(seq_list);
+    free(FREQUENCY);
+    fclose(fr);
+    fclose(fw);
 }

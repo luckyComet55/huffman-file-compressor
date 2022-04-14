@@ -19,6 +19,6 @@ typedef union bit2char {
     }mbit;
 }BIT2CHAR;
 
-void compress_file(FILE * fr, FILE * fw);
+void compress_file(char * filename);
 
 #endif //ENCODER_H

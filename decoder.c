@@ -4,6 +4,9 @@
 #include "btree.h"
 #include "encoder.h"
 #include "decoder.h"
+#define ALPHABET_CAP 256
+#define SINGLE_MEM_USAGE 65536
+#define MAX_EXT_LEN 8
 
 void _add_decoded_(NODE ** head, char symb, char code[MAX_CODE_LEN]) {
     NODE * new_node = (NODE*) malloc(sizeof (NODE));
@@ -25,34 +28,6 @@ int _get_code(NODE * head, char code[MAX_CODE_LEN]) {
         head = head->next;
     }
     return -1;
-}
-
-NODE *read_table(NODE ** head, FILE *fr) {
-    fseek(fr, 0L, SEEK_SET);
-    unsigned char buf[MAX_CODE_LEN + 3] = { 0 };
-    fgets(buf, MAX_CODE_LEN + 3, fr);
-    if (feof(fr) /*|| !buf*/) {
-        printf("File is empty\n");
-        exit(-8);
-    }
-    if (strcmp(buf, "SOT\n") != 0){
-        printf("No table for decoding\n");
-        exit(-9);
-    }
-    fgets(buf, MAX_CODE_LEN + 3, fr);
-    char symb;
-    char * code;
-    while (strcmp(buf, "EOT\n") != 0){
-        if (feof(fr) /*|| !buf*/) {
-            printf("File is empty\n");
-            exit(-10);
-        }
-        symb = buf[0];
-        if(symb == '\n') { fgets(buf, MAX_CODE_LEN + 3, fr); }
-        code = strtok(buf + 2 * (symb != '\n'), " \n");
-        _add_decoded_(head, symb, code);
-        fgets(buf, MAX_CODE_LEN + 3, fr);
-    }
 }
 
 void print_dec_list(const NODE *head) {
@@ -107,4 +82,40 @@ void decrypt_file(NODE *head, char * buf, FILE *fr, FILE *fw) {
         }
         code_index = 0;
     }
+}
+
+int check_ext(char * filename) {
+    for (int i = strlen(filename) - 1; i >= 0; --i) {
+        if(filename[i] == '.') {
+            if(strcmp(filename + i, ".holk") == 0) { return 0; }
+        }
+        if(filename[i] == '\\') { return 1; }
+    }
+    return 1;
+}
+
+NODE * get_meta(FILE * fr) {
+    NODE * freq_tree = NULL;
+    unsigned long long freq;
+    for (int i = 0; i < ALPHABET_CAP; ++i) {
+        fscanf(fr, "%llu", &freq);
+        if(freq != 0) {
+            add2list(&freq_tree, freq, i);
+        }
+    }
+    list2tree(&freq_tree);
+    return freq_tree;
+}
+
+void decompress_file(char * filename) {
+    if(check_ext(filename)) { return; }
+    FILE * fr = fopen(filename, "rb");
+    if(!fr) { exit(-11); }
+    char ext_[MAX_EXT_LEN] = { 0 };
+    int tail;
+    fscanf(fr, "%s %d", ext_, &tail);
+    printf("%s %d\n", ext_, tail);
+    NODE * code_tree = get_meta(fr);
+
+    fclose(fr);
 }
