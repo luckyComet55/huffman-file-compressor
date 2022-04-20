@@ -8,7 +8,7 @@
 #define MAX_EXT_LEN 8
 
 void print_meta(FILE * fw, char * ext_, int tail, unsigned long long * freq) {
-    fprintf(fw, "%s %d ", ext_, tail);
+    fprintf(fw, "%d %s ", tail, ext_);
     for (int i = 0; i < ALPHABET_CAP; ++i) {
         fprintf(fw, "%llu ", freq[i]);
     }
@@ -37,17 +37,6 @@ void _encode_(NODE * root, NODE ** encoded_, unsigned char code[MAX_CODE_LEN]) {
     temp[strlen(temp) - 1] = '1';
     _encode_(root->right, encoded_, temp);
 }
-
-void print_encode_table(const NODE * head, FILE * fw, const int tail) {
-    fseek(fw, 0L, SEEK_SET);
-    fprintf(fw, "SOT\n");
-    while(head) {
-        fprintf(fw, "%c %s\n", head->symb, head->code);
-        head = head->next;
-    }
-    fprintf(fw, "EOT\nTail %d\n", tail);
-}
-
 
 void encode_text(NODE *head, FILE *fr, FILE * fw, unsigned long long * freq, char * ext) {
     fseek(fr, 0L, SEEK_END);
@@ -78,14 +67,14 @@ void encode_text(NODE *head, FILE *fr, FILE * fw, unsigned long long * freq, cha
         unsigned long long bufsiz = strlen(buf) / BIT8;
         loc_tail = strlen(buf) % BIT8;
         for (unsigned long long j = 0; j < bufsiz; ++j) {
-            symb_bit.mbit.b1 = buf[j*BIT8 + 0];
-            symb_bit.mbit.b2 = buf[j*BIT8 + 1];
-            symb_bit.mbit.b3 = buf[j*BIT8 + 2];
-            symb_bit.mbit.b4 = buf[j*BIT8 + 3];
-            symb_bit.mbit.b5 = buf[j*BIT8 + 4];
-            symb_bit.mbit.b6 = buf[j*BIT8 + 5];
-            symb_bit.mbit.b7 = buf[j*BIT8 + 6];
-            symb_bit.mbit.b8 = buf[j*BIT8 + 7];
+            symb_bit.mbit.b8 = buf[j*BIT8 + 0];
+            symb_bit.mbit.b7 = buf[j*BIT8 + 1];
+            symb_bit.mbit.b6 = buf[j*BIT8 + 2];
+            symb_bit.mbit.b5 = buf[j*BIT8 + 3];
+            symb_bit.mbit.b4 = buf[j*BIT8 + 4];
+            symb_bit.mbit.b3 = buf[j*BIT8 + 5];
+            symb_bit.mbit.b2 = buf[j*BIT8 + 6];
+            symb_bit.mbit.b1 = buf[j*BIT8 + 7];
             res[j] = symb_bit.symb;
         }
         for (unsigned long long j = 0; j < bufsiz; ++j) {
@@ -101,10 +90,10 @@ void encode_text(NODE *head, FILE *fr, FILE * fw, unsigned long long * freq, cha
     for (unsigned long long i = 0; i < SINGLE_MEM_USAGE * MAX_CODE_LEN; ++i) {
         buf_temp[i] = 0;
     }
-    printf("Tail from previous sequence is: %d\n", loc_tail);
+    //printf("Tail from previous sequence is: %d\n", loc_tail);
     unsigned char symbol;
     NODE * node;
-    printf("\nRemaining memory under 64KB: %d\n", com_tail);
+    //printf("\nRemaining memory under 64KB: %d\n", com_tail);
     for (int i = 0; i < com_tail; ++i) {
         symbol = fgetc(fr);
         node = find_node(head, symbol);
@@ -115,26 +104,34 @@ void encode_text(NODE *head, FILE *fr, FILE * fw, unsigned long long * freq, cha
         strcpy(buf_temp, node->code);
         buf_temp += strlen(node->code);
     }
+    //printf("Final string:\n%s\n", buf);
     loc_tail = strlen(buf) % BIT8;
     int len = strlen(buf) / BIT8 + (loc_tail != 0);
-    printf("Final tail length: %d\n", loc_tail);
+    //printf("Final tail length: %d\n", loc_tail);
     BIT2CHAR symb_bit;
     for (int i = 0; i < len; ++i) {
-        symb_bit.mbit.b1 = buf[i*BIT8 + 0];
-        symb_bit.mbit.b2 = buf[i*BIT8 + 1];
-        symb_bit.mbit.b3 = buf[i*BIT8 + 2];
-        symb_bit.mbit.b4 = buf[i*BIT8 + 3];
-        symb_bit.mbit.b5 = buf[i*BIT8 + 4];
-        symb_bit.mbit.b6 = buf[i*BIT8 + 5];
-        symb_bit.mbit.b7 = buf[i*BIT8 + 6];
-        symb_bit.mbit.b8 = buf[i*BIT8 + 7];
+        symb_bit.mbit.b8 = buf[i*BIT8 + 0];
+        symb_bit.mbit.b7 = buf[i*BIT8 + 1];
+        symb_bit.mbit.b6 = buf[i*BIT8 + 2];
+        symb_bit.mbit.b5 = buf[i*BIT8 + 3];
+        symb_bit.mbit.b4 = buf[i*BIT8 + 4];
+        symb_bit.mbit.b3 = buf[i*BIT8 + 5];
+        symb_bit.mbit.b2 = buf[i*BIT8 + 6];
+        symb_bit.mbit.b1 = buf[i*BIT8 + 7];
         res[i] = symb_bit.symb;
+        /*unsigned char tttemp = res[i];
+        for (int j = 0; j < BIT8; ++j) {
+            printf("%c", (tttemp & 0b10000000) ? '1' : '0');
+            tttemp <<= 1;
+        }
+        printf("\n");*/
     }
     for (int i = 0; i < len; ++i) {
         fputc(res[i], fw);
     }
     fseek(fw, 0L, SEEK_SET);
-    print_meta(fw, ext, (8 - loc_tail) % BIT8, freq);
+    fprintf(fw, "%d", (8 - loc_tail) % BIT8);
+    //print_meta(fw, ext, (8 - loc_tail) % BIT8, freq);
     free(res);
     free(buf);
 }
@@ -207,23 +204,19 @@ void compress_file(char * filename) {
     char ext_[MAX_EXT_LEN] = { 0 };
     printf("%s\n", filename);
     FILE * fr = fopen(filename, "rb");
-    if(fr) {
-        printf("YES\n");
-    } else {
-        printf("AT");
-        exit(-1);
-    }
+    if(!fr) { exit(-12); }
+
+    fseek(fr, 0L, SEEK_END);
+    printf("Length of given file: %llu\n", ftell(fr));
+    fseek(fr, 0L, SEEK_SET);
+
     get_suffix(filename, ext_);
     unsigned long long * FREQUENCY = (unsigned long long*) calloc(ALPHABET_CAP, sizeof (unsigned long long));
     get_frequency_(FREQUENCY, fr);
     FILE * fw = fopen(filename, "wb");
-    if(fw) {
-        printf("YYYES\n");
-    }
-    print_meta(fw, ext_, 0, FREQUENCY);
-    printf("%s\n", ext_);
-    printf("%s\n", filename);
+    if(!fw) { exit(-11); }
     NODE * seq_list = gc_seq(fr);
+    //print_list(seq_list);
     encode_text(seq_list, fr, fw, FREQUENCY, ext_);
     seq_list = delete_list(seq_list);
     free(FREQUENCY);
